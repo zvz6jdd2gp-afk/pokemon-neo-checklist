@@ -9,12 +9,12 @@
 <title>Pokémon Neo</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f3f4f6;color:#17181a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{margin:0;background:#f3f4f6;color:#17181a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
 header{background:#15171b;color:#fff;padding:22px 14px 16px;padding-top:calc(18px + env(safe-area-inset-top));position:sticky;top:0;z-index:10}
 h1{font-size:24px;margin:0 0 4px} header p{margin:0;color:#c5c8ce;font-size:12px}
 .controls{background:#fff;padding:10px 12px;position:sticky;top:91px;z-index:9;border-bottom:1px solid #ddd}
-#search{width:100%;padding:12px;border:1px solid #d4d6da;border-radius:11px;font-size:15px;margin-bottom:8px}
-.row{display:flex;gap:7px} select{flex:1;padding:11px;border:1px solid #d4d6da;border-radius:10px;background:#fff;font-size:14px}
+#search{width:100%;padding:12px;border:1px solid #d4d6da;border-radius:11px;font-size:16px;margin-bottom:8px}
+.row{display:flex;gap:7px} select{flex:1;padding:11px;border:1px solid #d4d6da;border-radius:10px;background:#fff;font-size:16px}
 .stats{font-size:12px;font-weight:700;margin-top:9px;color:#555}
 main{padding:12px 9px;max-width:1100px;margin:auto}
 .set{margin-bottom:22px} .set h2{font-size:18px;margin:5px 3px 9px} .set h2 small{font-size:11px;color:#777;font-weight:500}
@@ -30,19 +30,13 @@ body.cols4 .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
 label{font-size:10px;white-space:nowrap;display:flex;align-items:center;gap:3px}
 .owned{width:18px;height:18px;accent-color:#198754}
 .pricebox{display:flex;align-items:center;border:1px solid #d3d5da;border-radius:7px;overflow:hidden;background:#fff}
-.price{width:52px;border:0;outline:0;padding:6px 3px;text-align:right;font-size:11px;background:transparent}
+.price{width:64px;min-width:64px;border:0;outline:0;padding:5px 3px;text-align:right;font-size:16px!important;line-height:1.2;background:transparent;-webkit-appearance:none;appearance:none}
 .pricebox span{padding-right:5px;color:#777;font-size:11px}
 .hidden{display:none!important}
 @media(min-width:700px){.grid{grid-template-columns:repeat(5,minmax(0,1fr))}body.cols3 .grid{grid-template-columns:repeat(6,minmax(0,1fr))}body.cols4 .grid{grid-template-columns:repeat(8,minmax(0,1fr))}}
 
-.market-price{margin-top:5px;font-size:11px;line-height:1.25;color:#667085}
-.market-price strong{color:#202124}
-.market-price .unknown{color:#8a8f98}
-.market-price.good{color:#087f5b;font-weight:700}
-.market-price.high{color:#c92a2a;font-weight:700}
-.market-price .source{font-size:9px;font-weight:400;color:#98a0aa}
+.market-price{margin-top:5px;font-size:10px;line-height:1.25;color:#667085;min-height:25px}.market-price strong{color:#202124}.market-price.good{color:#087f5b;font-weight:700}.market-price.high{color:#c92a2a;font-weight:700}.market-price .source{font-size:8px;font-weight:400;color:#98a0aa}.market-price .unknown{color:#8a8f98}
 @media(max-width:600px){.market-price{font-size:10px}.market-price .source{font-size:8px}}
-
 </style>
 </head>
 <body class="cols2">
@@ -3068,6 +3062,34 @@ label{font-size:10px;white-space:nowrap;display:flex;align-items:center;gap:3px}
   }
 
   data = readStorage();
+  // Prix de marché en yen : uniquement données de ventes vérifiables.
+  const MARKET_PRICES = {
+    "neo1-25": 5900,
+    "neo1-88": 400,
+    "neo1-117": 400
+  };
+
+  function renderMarketPrices() {
+    cards.forEach(function(card) {
+      const box = card.querySelector("[data-market-price]");
+      if (!box) return;
+      const market = MARKET_PRICES[card.dataset.key];
+      const input = card.querySelector(".price");
+      const purchase = input ? parseFloat(String(input.value).replace(",", ".")) : NaN;
+      box.className = "market-price";
+      if (typeof market !== "number") {
+        box.innerHTML = '<span class="unknown">Prix marché : —</span>';
+        return;
+      }
+      let comparison = "";
+      if (Number.isFinite(purchase) && purchase > 0) {
+        if (purchase < market) { box.classList.add("good"); comparison = " · Bonne affaire ✓"; }
+        else if (purchase > market) { box.classList.add("high"); comparison = " · Au-dessus du marché"; }
+        else comparison = " · Au prix du marché";
+      }
+      box.innerHTML = '<strong>Prix marché : ' + market.toLocaleString("fr-FR") + ' ¥</strong>' + comparison + '<div class="source">Ventes vérifiées · brut</div>';
+    });
+  }
 
   function saveAndRefresh() {
     const ok = writeStorage();
@@ -3127,6 +3149,7 @@ label{font-size:10px;white-space:nowrap;display:flex;align-items:center;gap:3px}
   });
 
   function update() {
+    renderMarketPrices();
     const q = search.value.trim().toLowerCase();
     const selectedSeries = series.value;
     const selectedFilter = filter.value;
@@ -3176,43 +3199,6 @@ label{font-size:10px;white-space:nowrap;display:flex;align-items:center;gap:3px}
 
   update();
 })();
-
-const MARKET_PRICES = {
-  "neo1-25":5900,
-  "neo1-88":400,
-  "neo1-117":400
-};
-
-function renderMarketPrices(){
-  document.querySelectorAll(".card").forEach(card=>{
-    const box=card.querySelector("[data-market-price]");
-    if(!box)return;
-    const key=card.dataset.key;
-    const market=MARKET_PRICES[key];
-    const input=card.querySelector(".price");
-    const purchase=input?parseFloat(String(input.value).replace(",", ".")):NaN;
-    box.className="market-price";
-    if(typeof market!=="number"){
-      box.innerHTML='<span class="unknown">Prix marché : —</span>';
-      return;
-    }
-    let comparison="";
-    if(Number.isFinite(purchase)&&purchase>0){
-      if(purchase<market){box.classList.add("good");comparison=" · Bonne affaire ✓";}
-      else if(purchase>market){box.classList.add("high");comparison=" · Au-dessus du marché";}
-      else comparison=" · Au prix du marché";
-    }
-    box.innerHTML='<strong>Prix marché : '+market.toLocaleString("fr-FR")+' ¥</strong>'+
-      comparison+
-      '<div class="source">Cardmarket / ventes eBay · brut · repère marché</div>';
-  });
-}
-
 </script>
-
-<div style="max-width:1100px;margin:18px auto;padding:12px 14px;color:#667085;font-size:11px;line-height:1.4">
-<strong>Prix marché en ¥ :</strong> valeurs basées uniquement sur des ventes vérifiables
-(Cardmarket et/ou ventes eBay). Les cartes sans volume ou correspondance japonaise suffisamment
-fiable affichent « — ». Les prix sont arrondis à 100 ¥.
-</div>
+<div style="max-width:1100px;margin:18px auto;padding:12px 14px;color:#667085;font-size:11px;line-height:1.4"><strong>Prix marché en ¥ :</strong> les cartes sans données de ventes suffisamment fiables affichent « — ». Les prix sont arrondis à 100 ¥. Les ventes eBay utilisées sont des ventes terminées, pas des annonces en cours.</div>
 </body></html>
