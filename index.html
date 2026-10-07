@@ -2970,4 +2970,202 @@ label{font-size:10px;white-space:nowrap;display:flex;align-items:center;gap:3px}
   <div class="num">#107</div>
   <div class="bottom">
     <label><input class="owned" type="checkbox"> Achetée</label>
-    <div class="pricebox"><input class="price" type="text" inputmode="decimal" placeholder="0"><span>¥
+    <div class="pricebox"><input class="price" type="text" inputmode="decimal" placeholder="0"><span>¥</span></div>
+  </div>
+</article>
+<article class="card" data-key="neo4-108" data-series="neo4" data-number="108">
+  <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-destiny/neo4-108.jpg" alt="Neo Destiny #108" onerror="this.classList.add('noimg');this.removeAttribute('src')">
+  <div class="name">Neo Destiny</div>
+  <div class="num">#108</div>
+  <div class="bottom">
+    <label><input class="owned" type="checkbox"> Achetée</label>
+    <div class="pricebox"><input class="price" type="text" inputmode="decimal" placeholder="0"><span>¥</span></div>
+  </div>
+</article>
+<article class="card" data-key="neo4-109" data-series="neo4" data-number="109">
+  <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-destiny/neo4-109.jpg" alt="Neo Destiny #109" onerror="this.classList.add('noimg');this.removeAttribute('src')">
+  <div class="name">Neo Destiny</div>
+  <div class="num">#109</div>
+  <div class="bottom">
+    <label><input class="owned" type="checkbox"> Achetée</label>
+    <div class="pricebox"><input class="price" type="text" inputmode="decimal" placeholder="0"><span>¥</span></div>
+  </div>
+</article>
+<article class="card" data-key="neo4-110" data-series="neo4" data-number="110">
+  <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-destiny/neo4-110.jpg" alt="Neo Destiny #110" onerror="this.classList.add('noimg');this.removeAttribute('src')">
+  <div class="name">Neo Destiny</div>
+  <div class="num">#110</div>
+  <div class="bottom">
+    <label><input class="owned" type="checkbox"> Achetée</label>
+    <div class="pricebox"><input class="price" type="text" inputmode="decimal" placeholder="0"><span>¥</span></div>
+  </div>
+</article>
+<article class="card" data-key="neo4-111" data-series="neo4" data-number="111">
+  <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-destiny/neo4-111.jpg" alt="Neo Destiny #111" onerror="this.classList.add('noimg');this.removeAttribute('src')">
+  <div class="name">Neo Destiny</div>
+  <div class="num">#111</div>
+  <div class="bottom">
+    <label><input class="owned" type="checkbox"> Achetée</label>
+    <div class="pricebox"><input class="price" type="text" inputmode="decimal" placeholder="0"><span>¥</span></div>
+  </div>
+</article>
+<article class="card" data-key="neo4-112" data-series="neo4" data-number="112">
+  <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-destiny/neo4-112.jpg" alt="Neo Destiny #112" onerror="this.classList.add('noimg');this.removeAttribute('src')">
+  <div class="name">Neo Destiny</div>
+  <div class="num">#112</div>
+  <div class="bottom">
+    <label><input class="owned" type="checkbox"> Achetée</label>
+    <div class="pricebox"><input class="price" type="text" inputmode="decimal" placeholder="0"><span>¥</span></div>
+  </div>
+</article>
+<article class="card" data-key="neo4-113" data-series="neo4" data-number="113">
+  <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-destiny/neo4-113.jpg" alt="Neo Destiny #113" onerror="this.classList.add('noimg');this.removeAttribute('src')">
+  <div class="name">Neo Destiny</div>
+  <div class="num">#113</div>
+  <div class="bottom">
+    <label><input class="owned" type="checkbox"> Achetée</label>
+    <div class="pricebox"><input class="price" type="text" inputmode="decimal" placeholder="0"><span>¥</span></div>
+  </div>
+</article></div></section></main>
+<script>
+(function () {
+  "use strict";
+
+  const KEY = "pokemon-neo-collection-v3";
+  const cards = Array.from(document.querySelectorAll(".card"));
+  const search = document.getElementById("search");
+  const series = document.getElementById("series");
+  const filter = document.getElementById("filter");
+  const cols = document.getElementById("cols");
+  const stats = document.getElementById("stats");
+
+  let data = {};
+
+  function readStorage() {
+    try {
+      const raw = window.localStorage.getItem(KEY);
+      if (raw) return JSON.parse(raw) || {};
+    } catch (e) {}
+    return {};
+  }
+
+  function writeStorage() {
+    try {
+      window.localStorage.setItem(KEY, JSON.stringify(data));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  data = readStorage();
+
+  function saveAndRefresh() {
+    const ok = writeStorage();
+    update();
+    return ok;
+  }
+
+  function getCardData(key) {
+    if (!data[key]) data[key] = {};
+    return data[key];
+  }
+
+  function setPrice(card, value) {
+    const key = card.dataset.key;
+    const d = getCardData(key);
+    let v = String(value || "").trim().replace(/\s/g, "").replace(",", ".");
+
+    if (v === "") {
+      d.price = "";
+    } else if (/^\d+(?:\.\d{0,2})?$/.test(v)) {
+      d.price = v;
+    } else {
+      card.querySelector(".price").value = d.price || "";
+      return;
+    }
+    saveAndRefresh();
+  }
+
+  cards.forEach(function (card) {
+    const key = card.dataset.key;
+    const d = data[key] || {};
+    const checkbox = card.querySelector(".owned");
+    const price = card.querySelector(".price");
+
+    checkbox.checked = d.owned === true;
+    price.value = d.price || "";
+
+    checkbox.addEventListener("change", function () {
+      getCardData(key).owned = checkbox.checked;
+      saveAndRefresh();
+    });
+
+    price.addEventListener("change", function () {
+      setPrice(card, price.value);
+    });
+
+    price.addEventListener("blur", function () {
+      setPrice(card, price.value);
+    });
+
+    price.addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        price.blur();
+      }
+    });
+  });
+
+  function update() {
+    const q = search.value.trim().toLowerCase();
+    const selectedSeries = series.value;
+    const selectedFilter = filter.value;
+    let ownedCount = 0;
+    let totalYen = 0;
+
+    cards.forEach(function (card) {
+      const d = data[card.dataset.key] || {};
+
+      if (d.owned === true) ownedCount++;
+
+      const amount = parseFloat(d.price);
+      if (!Number.isNaN(amount)) totalYen += amount;
+
+      const searchable = (
+        card.dataset.number + " " +
+        card.querySelector(".name").textContent
+      ).toLowerCase();
+
+      const show =
+        searchable.includes(q) &&
+        (selectedSeries === "all" || card.dataset.series === selectedSeries) &&
+        (
+          selectedFilter === "all" ||
+          (selectedFilter === "owned" && d.owned === true) ||
+          (selectedFilter === "missing" && d.owned !== true)
+        );
+
+      card.classList.toggle("hidden", !show);
+    });
+
+    const euros = totalYen / 176.85;
+    stats.textContent =
+      ownedCount + " / 331 cartes • " +
+      Math.round(totalYen).toLocaleString("fr-FR") + " ¥ • " +
+      euros.toFixed(2).replace(".", ",") + " €";
+  }
+
+  search.addEventListener("input", update);
+  series.addEventListener("change", update);
+  filter.addEventListener("change", update);
+
+  cols.addEventListener("change", function () {
+    document.body.className = "cols" + cols.value;
+    update();
+  });
+
+  update();
+})();
+</script>
+</body></html>
