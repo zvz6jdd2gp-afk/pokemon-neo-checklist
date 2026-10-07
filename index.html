@@ -3,1127 +3,224 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Checklist Pokémon — Neo japonais</title>
-<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Pokémon Neo">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#111827">
+<title>Pokémon Neo — Checklist japonaise</title>
 <style>
-  :root {
-    --bg:#f4f5f7; --panel:#fff; --text:#17181a; --muted:#6b7078;
-    --line:#dddfe4; --accent:#1d1f23; --ok:#2b7a3d;
-  }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--bg); color:var(--text);
-         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif; }
-  header { position:sticky; top:0; z-index:10; background:rgba(255,255,255,.96);
-            backdrop-filter:blur(10px); border-bottom:1px solid var(--line); padding:14px; }
-  .top { max-width:1400px; margin:auto; }
-  h1 { margin:0 0 4px; font-size:24px; }
-  .sub { color:var(--muted); font-size:13px; }
-  .bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:12px; }
-  .progress { font-weight:700; margin-right:8px; }
-  button { border:1px solid var(--line); background:#fff; border-radius:999px;
-            padding:8px 12px; cursor:pointer; }
-  button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
-  .set-section { max-width:1400px; margin:26px auto; padding:0 14px; }
-  .set-head { display:flex; justify-content:space-between; align-items:end; gap:15px;
-               margin-bottom:12px; }
-  h2 { margin:0; font-size:20px; }
-  .jp { color:var(--muted); font-size:13px; margin-top:3px; }
-  .set-progress { font-weight:700; white-space:nowrap; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(145px,1fr)); gap:12px; }
-  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px;
-           padding:8px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
-  .thumb-wrap { aspect-ratio:2.5/3.5; background:#eee; border-radius:8px; overflow:hidden;
-                 display:flex; align-items:center; justify-content:center; }
-  img { width:100%; height:100%; object-fit:contain; display:block; }
-  .meta { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:6px; padding-top:8px; }
-  .num { font-weight:800; font-variant-numeric:tabular-nums; }
-  label { font-size:12px; display:flex; align-items:center; gap:5px; cursor:pointer; }
-  .price { width:62px; border:1px solid var(--line); border-radius:7px; padding:5px 6px;
-           font-size:12px; background:#fff; text-align:right; }
-  input { width:18px; height:18px; accent-color:var(--ok); }
-  .card:has(input:checked) { border-color:#78a884; background:#f3faf4; }
-  .card:has(input:checked) .num::after { content:" ✓"; color:var(--ok); }
-  .img-error .thumb-wrap::after { content:"Image indisponible"; color:#888; font-size:12px; }
-  footer { max-width:1400px; margin:30px auto 50px; padding:0 14px; color:var(--muted); font-size:12px; line-height:1.5; }
-  @media print {
-    header { position:static; }
-    button { display:none; }
-    .grid { grid-template-columns:repeat(6,1fr); gap:6px; }
-    .set-section { page-break-before:always; }
-    .set-section:first-of-type { page-break-before:auto; }
-    .card { break-inside:avoid; box-shadow:none; }
-  }
-
-  html { -webkit-text-size-adjust:100%; scroll-behavior:smooth; }
-  body { padding-bottom: env(safe-area-inset-bottom); }
-  .mobile-tools { display:flex; gap:8px; margin-top:9px; }
-  #search { flex:1; min-width:0; border:1px solid var(--line); border-radius:11px;
-            padding:10px 12px; font-size:16px; background:#fff; }
-  #sort { border:1px solid var(--line); border-radius:11px; padding:9px 8px;
-          font-size:14px; background:#fff; max-width:180px; }
-  .set-head { position:sticky; top:96px; z-index:5; background:rgba(244,245,247,.94);
-              backdrop-filter:blur(8px); padding:10px 0; }
-  .set-progress { font-size:14px; }
-  .card { transition:transform .12s ease, border-color .12s ease; }
-  .card:active { transform:scale(.98); }
-  .price { min-height:36px; width:76px; font-size:15px; padding:7px 8px; }
-  label { min-height:36px; }
-  .meta { grid-template-columns:1fr auto; }
-  .meta label { grid-column:1 / -1; }
-  .meta .price { grid-column:2; grid-row:1; }
-  .num { grid-column:1; grid-row:1; }
-  .empty { display:none; text-align:center; color:var(--muted); padding:40px 15px; }
-  @media (max-width: 600px) {
-    header { padding:10px 10px 11px; }
-    h1 { font-size:20px; }
-    .sub { font-size:12px; }
-    .bar { gap:6px; overflow-x:auto; flex-wrap:nowrap; padding-bottom:2px;
-           -webkit-overflow-scrolling:touch; scrollbar-width:none; }
-    .bar::-webkit-scrollbar { display:none; }
-    .bar button { flex:0 0 auto; font-size:13px; padding:8px 10px; }
-    .progress { flex:0 0 auto; font-size:13px; }
-    .mobile-tools { flex-direction:column; }
-    #sort { max-width:none; width:100%; }
-    .set-section { margin:12px auto 24px; padding:0 9px; }
-    .set-head { top:124px; }
-    h2 { font-size:18px; }
-    .grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-    .card { padding:6px; border-radius:10px; }
-    .thumb-wrap { border-radius:7px; }
-    .meta { padding-top:6px; }
-    footer { padding:0 10px; }
-  }
-  @media (min-width: 601px) {
-    .mobile-tools { max-width:700px; }
-  }
-
+*{box-sizing:border-box}
+body{margin:0;background:#f3f4f6;color:#111827;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{background:#111827;color:white;padding:22px 16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px #0002}
+h1{margin:0 0 6px;font-size:24px}
+header p{margin:0;color:#d1d5db;font-size:14px}
+.controls{padding:14px 16px;background:white;position:sticky;top:83px;z-index:9;border-bottom:1px solid #ddd}
+input,select,button{font:inherit}
+#search{width:100%;padding:12px;border:1px solid #ccc;border-radius:10px;margin-bottom:10px}
+.row{display:flex;gap:8px}
+select{flex:1;padding:11px;border:1px solid #ccc;border-radius:10px;background:white}
+.summary{margin-top:10px;font-size:14px;font-weight:600}
+main{padding:16px;max-width:1100px;margin:auto}
+.set{margin-bottom:28px}
+.set h2{font-size:20px;margin:8px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.card{background:white;border-radius:12px;padding:9px;box-shadow:0 1px 5px #0001;min-width:0}
+.card img{width:100%;aspect-ratio:0.72;object-fit:cover;border-radius:8px;background:#e5e7eb;display:block}
+.card-title{font-size:13px;font-weight:700;margin:7px 0 5px}
+.card-number{font-size:12px;color:#6b7280}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:5px;margin-top:7px}
+.owned{display:flex;align-items:center;gap:5px;font-size:12px;white-space:nowrap}
+.owned input{width:19px;height:19px}
+.price{width:76px;padding:7px;border:1px solid #ccc;border-radius:8px;text-align:right}
+.hidden{display:none!important}
+.empty{padding:25px;text-align:center;color:#6b7280}
+@media(min-width:700px){.grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
 </style>
 </head>
 <body>
 <header>
-  <div class="top">
-    <h1>Checklist Pokémon — ère Neo japonaise</h1>
-    <div class="sub">4 extensions principales · 331 cartes répertoriées · les cases et les prix sont sauvegardés automatiquement dans Safari</div>
-    <div class="bar">
-      <div class="progress"><span id="count">0</span> / 331 achetées</div>
-      <button class="filter active" data-filter="all">Toutes</button>
-      <button class="filter" data-filter="neo1">Neo Genesis <span>102</span></button><button class="filter" data-filter="neo2">Neo Discovery <span>59</span></button><button class="filter" data-filter="neo3">Neo Revelation <span>57</span></button><button class="filter" data-filter="neo4">Neo Destiny <span>113</span></button>
-      <button id="missing">Afficher seulement les manquantes</button>
-      <button id="reset">Tout décocher</button>
-      <div class="mobile-tools">
-        <input id="search" type="search" inputmode="search"
-               placeholder="Rechercher une carte ou un numéro…"
-               autocomplete="off" enterkeyhint="search">
-        <select id="sort">
-          <option value="number">Trier par numéro</option>
-          <option value="missing">Manquantes d’abord</option>
-          <option value="price">Prix d’achat</option>
-        </select>
-      </div>
-    </div>
-  </div>
+<h1>🃏 Pokémon Neo — Checklist japonaise</h1>
+<p>Coche les cartes que tu possèdes et indique ton prix d'achat.</p>
 </header>
 
-<main>
+<div class="controls">
+<input id="search" type="search" placeholder="🔎 Rechercher une carte ou un numéro…">
+<div class="row">
+<select id="filter">
+<option value="all">Toutes les cartes</option>
+<option value="missing">À trouver</option>
+<option value="owned">Possédées</option>
+</select>
+<select id="sort">
+<option value="number">Numéro</option>
+<option value="price">Prix</option>
+</select>
+</div>
+<div class="summary" id="summary">Chargement…</div>
+</div>
 
-    <section class="set-section" id="neo1" data-set="neo1">
-      <div class="set-head">
-        <div>
-          <h2>Neo Genesis</h2>
-          <div class="jp">金、銀、新世界へ... · 2000</div>
-        </div>
-        <div class="set-progress"><span data-progress-set="neo1">0</span> / 102</div>
-      </div>
-      <div class="grid">
-        
-            <article class="card" data-set="neo1" data-key="neo1-1">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-001.jpg" alt="Neo Genesis 001"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">001</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-1"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-2">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-002.jpg" alt="Neo Genesis 002"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">002</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-2"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-3">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-003.jpg" alt="Neo Genesis 003"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">003</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-3"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-4">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-004.jpg" alt="Neo Genesis 004"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">004</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-4"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-5">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-005.jpg" alt="Neo Genesis 005"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">005</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-5"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-6">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-006.jpg" alt="Neo Genesis 006"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">006</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-6"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-7">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-007.jpg" alt="Neo Genesis 007"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">007</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-7"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-8">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-008.jpg" alt="Neo Genesis 008"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">008</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-8"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-9">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-009.jpg" alt="Neo Genesis 009"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">009</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-9"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-10">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-010.jpg" alt="Neo Genesis 010"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">010</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-10"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-11">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-011.jpg" alt="Neo Genesis 011"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">011</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-11"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-12">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-012.jpg" alt="Neo Genesis 012"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">012</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-12"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-13">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-013.jpg" alt="Neo Genesis 013"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">013</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-13"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-14">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-014.jpg" alt="Neo Genesis 014"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">014</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-14"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-15">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-015.jpg" alt="Neo Genesis 015"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">015</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-15"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-16">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-016.jpg" alt="Neo Genesis 016"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">016</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-16"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-17">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-017.jpg" alt="Neo Genesis 017"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">017</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-17"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-18">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-018.jpg" alt="Neo Genesis 018"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">018</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-18"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-19">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-019.jpg" alt="Neo Genesis 019"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">019</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-19"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-20">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-020.jpg" alt="Neo Genesis 020"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">020</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-20"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-21">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-021.jpg" alt="Neo Genesis 021"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">021</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-21"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-22">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-022.jpg" alt="Neo Genesis 022"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">022</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-22"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-23">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-023.jpg" alt="Neo Genesis 023"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">023</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-23"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-24">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-024.jpg" alt="Neo Genesis 024"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">024</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-24"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-25">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-025.jpg" alt="Neo Genesis 025"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">025</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-25"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-26">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-026.jpg" alt="Neo Genesis 026"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">026</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-26"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-27">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-027.jpg" alt="Neo Genesis 027"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">027</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-27"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-28">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-028.jpg" alt="Neo Genesis 028"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">028</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-28"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-29">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-029.jpg" alt="Neo Genesis 029"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">029</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-29"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-30">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-030.jpg" alt="Neo Genesis 030"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">030</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-30"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-31">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-031.jpg" alt="Neo Genesis 031"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">031</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-31"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-32">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-032.jpg" alt="Neo Genesis 032"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">032</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-32"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-33">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-033.jpg" alt="Neo Genesis 033"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">033</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-33"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-34">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-034.jpg" alt="Neo Genesis 034"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">034</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-34"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-35">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-035.jpg" alt="Neo Genesis 035"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">035</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-35"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-36">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-036.jpg" alt="Neo Genesis 036"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">036</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-36"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-37">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-037.jpg" alt="Neo Genesis 037"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">037</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-37"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-38">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-038.jpg" alt="Neo Genesis 038"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">038</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-38"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-39">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-039.jpg" alt="Neo Genesis 039"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">039</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-39"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-40">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-040.jpg" alt="Neo Genesis 040"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">040</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-40"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-41">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-041.jpg" alt="Neo Genesis 041"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">041</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-41"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-42">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-042.jpg" alt="Neo Genesis 042"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">042</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-42"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-43">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-043.jpg" alt="Neo Genesis 043"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">043</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-43"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-44">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-044.jpg" alt="Neo Genesis 044"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">044</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-44"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-45">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-045.jpg" alt="Neo Genesis 045"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">045</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-45"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-46">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-046.jpg" alt="Neo Genesis 046"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">046</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-46"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-47">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-047.jpg" alt="Neo Genesis 047"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">047</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-47"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-48">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-048.jpg" alt="Neo Genesis 048"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">048</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-48"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-49">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-049.jpg" alt="Neo Genesis 049"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">049</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-49"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-50">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-050.jpg" alt="Neo Genesis 050"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">050</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-50"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-51">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-051.jpg" alt="Neo Genesis 051"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">051</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-51"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-52">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-052.jpg" alt="Neo Genesis 052"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">052</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-52"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-53">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-053.jpg" alt="Neo Genesis 053"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">053</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-53"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-54">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-054.jpg" alt="Neo Genesis 054"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">054</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-54"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-55">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-055.jpg" alt="Neo Genesis 055"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">055</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-55"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-56">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-056.jpg" alt="Neo Genesis 056"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">056</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-56"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-57">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-057.jpg" alt="Neo Genesis 057"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">057</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-57"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-58">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-058.jpg" alt="Neo Genesis 058"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">058</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-58"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-59">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-059.jpg" alt="Neo Genesis 059"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">059</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-59"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-60">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-060.jpg" alt="Neo Genesis 060"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">060</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-60"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-61">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-061.jpg" alt="Neo Genesis 061"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">061</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-61"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-62">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-062.jpg" alt="Neo Genesis 062"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">062</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-62"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-63">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-063.jpg" alt="Neo Genesis 063"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">063</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-63"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-64">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-064.jpg" alt="Neo Genesis 064"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">064</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-64"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-65">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-065.jpg" alt="Neo Genesis 065"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">065</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-65"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-66">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-066.jpg" alt="Neo Genesis 066"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">066</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-66"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-67">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-067.jpg" alt="Neo Genesis 067"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">067</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-67"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-68">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-068.jpg" alt="Neo Genesis 068"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">068</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-68"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-69">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-069.jpg" alt="Neo Genesis 069"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">069</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-69"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-70">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-070.jpg" alt="Neo Genesis 070"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">070</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-70"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-71">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-071.jpg" alt="Neo Genesis 071"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">071</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-71"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-72">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-072.jpg" alt="Neo Genesis 072"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">072</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-72"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-73">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-073.jpg" alt="Neo Genesis 073"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">073</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-73"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-74">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-074.jpg" alt="Neo Genesis 074"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">074</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-74"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-75">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-075.jpg" alt="Neo Genesis 075"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">075</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-75"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-76">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-076.jpg" alt="Neo Genesis 076"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">076</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-76"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-77">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-077.jpg" alt="Neo Genesis 077"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">077</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-77"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-78">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-078.jpg" alt="Neo Genesis 078"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">078</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-78"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-79">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-079.jpg" alt="Neo Genesis 079"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">079</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-79"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-80">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-080.jpg" alt="Neo Genesis 080"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">080</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-80"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-81">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-081.jpg" alt="Neo Genesis 081"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">081</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-81"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-82">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-082.jpg" alt="Neo Genesis 082"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">082</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-82"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-83">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-083.jpg" alt="Neo Genesis 083"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">083</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-83"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-84">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-084.jpg" alt="Neo Genesis 084"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">084</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-84"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-85">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-085.jpg" alt="Neo Genesis 085"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">085</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-85"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-86">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-086.jpg" alt="Neo Genesis 086"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">086</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-86"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-87">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-087.jpg" alt="Neo Genesis 087"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">087</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-87"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-88">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-088.jpg" alt="Neo Genesis 088"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">088</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-88"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-89">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-089.jpg" alt="Neo Genesis 089"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
-                <div class="num">089</div>
-                <label><input type="checkbox" class="owned" data-key="neo1-89"> Achetée</label>
-              </div>
-            </article>
-            
-            <article class="card" data-set="neo1" data-key="neo1-90">
-              <div class="thumb-wrap">
-                <img loading="lazy" src="https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/neo-genesis/neo1-090.jpg" alt="Neo Genesis 090"
-                     onerror="this.closest('.card').classList.add('img-error');">
-              </div>
-              <div class="meta">
+<main id="app"></main>
+
+<script>
+(function(){
+"use strict";
+
+const sets = [
+  {name:"Neo Genesis", code:"neo1", count:102, nums:[...Array(96)].map((_,i)=>i+1).concat([106,107,108,109,110,111])},
+  {name:"Neo Discovery", code:"neo2", count:59, nums:[...Array(56)].map((_,i)=>i+1).concat([67,68])},
+  {name:"Neo Revelation", code:"neo3", count:57, nums:[...Array(57)].map((_,i)=>i+1)},
+  {name:"Neo Destiny", code:"neo4", count:113, nums:[...Array(113)].map((_,i)=>i+1)}
+];
+
+const KEY="pokemon-neo-checklist-v2";
+let state={};
+
+try{ state=JSON.parse(localStorage.getItem(KEY)||"{}")||{}; }catch(e){state={};}
+
+const app=document.getElementById("app");
+
+function key(code,num){return code+"-"+num;}
+function imageUrl(code,num){
+  return "https://aplnyshrkrgbselitojs.supabase.co/storage/v1/object/public/card-images/"+(
+    code==="neo1"?"neo-genesis":
+    code==="neo2"?"neo-discovery":
+    code==="neo3"?"neo-revelation":"neo-destiny"
+  )+"/"+code+"-"+String(num).padStart(3,"0")+".jpg";
+}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+}
+function render(){
+  app.innerHTML="";
+  sets.forEach(set=>{
+    const section=document.createElement("section");
+    section.className="set";
+    section.dataset.set=set.code;
+    const h=document.createElement("h2");
+    h.textContent=set.name+" ("+set.count+" cartes)";
+    section.appendChild(h);
+    const grid=document.createElement("div");
+    grid.className="grid";
+
+    set.nums.forEach(num=>{
+      const k=key(set.code,num);
+      const data=state[k]||{};
+      const card=document.createElement("article");
+      card.className="card";
+      card.dataset.key=k;
+      card.dataset.number=String(num);
+      card.dataset.owned=data.owned?"1":"0";
+      card.dataset.price=data.price||"";
+
+      const img=document.createElement("img");
+      img.loading="lazy";
+      img.alt=set.name+" "+num;
+      img.src=imageUrl(set.code,num);
+      img.onerror=function(){
+        this.style.objectFit="contain";
+        this.src="data:image/svg+xml;charset=UTF-8,"+encodeURIComponent(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 420"><rect width="100%" height="100%" fill="#e5e7eb"/><text x="50%" y="48%" text-anchor="middle" font-size="24" fill="#6b7280">Image</text><text x="50%" y="55%" text-anchor="middle" font-size="18" fill="#6b7280">indisponible</text></svg>'
+        );
+      };
+      card.appendChild(img);
+
+      const title=document.createElement("div");
+      title.className="card-title";
+      title.textContent=set.name;
+      card.appendChild(title);
+
+      const number=document.createElement("div");
+      number.className="card-number";
+      number.textContent="#"+String(num).padStart(3,"0");
+      card.appendChild(number);
+
+      const bottom=document.createElement("div");
+      bottom.className="card-bottom";
+
+      const label=document.createElement("label");
+      label.className="owned";
+      const check=document.createElement("input");
+      check.type="checkbox";
+      check.checked=!!data.owned;
+      check.addEventListener("change",function(){
+        state[k]=state[k]||{};
+        state[k].owned=this.checked;
+        card.dataset.owned=this.checked?"1":"0";
+        save(); update();
+      });
+      label.appendChild(check);
+      label.appendChild(document.createTextNode("Achetée"));
+
+      const price=document.createElement("input");
+      price.className="price";
+      price.type="number";
+      price.min="0";
+      price.step="0.01";
+      price.inputMode="decimal";
+      price.placeholder="€";
+      price.value=data.price||"";
+      price.addEventListener("input",function(){
+        state[k]=state[k]||{};
+        state[k].price=this.value;
+        card.dataset.price=this.value;
+        save(); update();
+      });
+
+      bottom.appendChild(label);
+      bottom.appendChild(price);
+      card.appendChild(bottom);
+      grid.appendChild(card);
+    });
+    section.appendChild(grid);
+    app.appendChild(section);
+  });
+  update();
+}
+
+function update(){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  const filter=document.getElementById("filter").value;
+  const sort=document.getElementById("sort").value;
+  let total=0, owned=0, visible=0;
+
+  document.querySelectorAll(".card").forEach(card=>{
+    const k=card.dataset.key;
+    const data=state[k]||{};
+    const matchText=(card.dataset.number+" "+card.querySelector(".card-title").textContent).toLowerCase().includes(q);
+    const matchFilter=filter==="all" || (filter==="owned" ? !!data.owned : !data.owned);
+    const show=matchText && matchFilter;
+    card.classList.toggle("hidden",!show);
+    if(show) visible++;
+    if(data.owned) owned++;
+    const p=parseFloat(data.price);
+    if(!isNaN(p)) total+=p;
+  });
+
+  document.getElementById("summary").textContent=
+    owned+" / 331 cartes possédées • "+total.toFixed(2).replace(".",",")+" € dépensés • "+visible+" affichées";
+
+  document.querySelectorAll(".grid").forEach(grid=>{
+    const cards=[...grid.children];
+    cards.sort((a,b)=>{
+      if(sort==="price"){
+        return (parseFloat((state[a.dataset.key]||{}).price)||0)-
+               (parseFloat((state[b.dataset.key]||{}).price)||0);
+      }
+      return parseInt(a.dataset.number)-parseInt(b.dataset.number);
+    });
+    cards.forEach(c=>grid.appendChild(c));
+  });
+}
+
+document.getElementById("search").addEventListener("input",update);
+document.getElementById("filter").addEventListener("change",update);
+document.getElementById("sort").addEventListener("change",update);
+
+render();
+})();
+</script>
+</body>
+</html>
+
                 <div class="num">090</div>
                 <label><input type="checkbox" class="owned" data-key="neo1-90"> Achetée</label>
               </div>
