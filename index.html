@@ -3177,66 +3177,42 @@ label{font-size:10px;white-space:nowrap;display:flex;align-items:center;gap:3px}
   update();
 })();
 
-// ===== Prix de marché japonais =====
-// Prix en euros, marché japonais, principalement Near Mint / brut.
-// Les cartes sans donnée fiable restent affichées avec "Prix moyen : —".
 const MARKET_PRICES = {
-  "neo1-1":17.65,
-  "neo2-7":31.35,
-  "neo2-8":65.75,
-  "neo2-13":495.00,
-  "neo2-38":6.74,
-  "neo2-44":1.50,
-  "neo2-58":0.72,
-  "neo2-66":1.05,
-  "neo3-15":43.10,
-  "neo3-30":0.91,
-  "neo4-33":4.26,
-  "neo4-64":0.93
+  "neo1-25":5900,
+  "neo1-88":400,
+  "neo1-117":400
 };
 
 function renderMarketPrices(){
   document.querySelectorAll(".card").forEach(card=>{
-    const box = card.querySelector("[data-market-price]");
-    if(!box) return;
-    const key = card.dataset.key;
-    const market = MARKET_PRICES[key];
-    const priceInput = card.querySelector(".price");
-    const purchase = priceInput ? parseFloat(String(priceInput.value).replace(",", ".")) : NaN;
-
-    box.className = "market-price";
-    if(typeof market !== "number"){
-      box.innerHTML = '<span class="unknown">Prix moyen : —</span>';
+    const box=card.querySelector("[data-market-price]");
+    if(!box)return;
+    const key=card.dataset.key;
+    const market=MARKET_PRICES[key];
+    const input=card.querySelector(".price");
+    const purchase=input?parseFloat(String(input.value).replace(",", ".")):NaN;
+    box.className="market-price";
+    if(typeof market!=="number"){
+      box.innerHTML='<span class="unknown">Prix marché : —</span>';
       return;
     }
-
-    let comparison = "";
-    if(Number.isFinite(purchase) && purchase > 0){
-      if(purchase < market){
-        box.classList.add("good");
-        comparison = " · Bonne affaire";
-      }else if(purchase > market){
-        box.classList.add("high");
-        comparison = " · Au-dessus du marché";
-      }else{
-        comparison = " · Au prix du marché";
-      }
+    let comparison="";
+    if(Number.isFinite(purchase)&&purchase>0){
+      if(purchase<market){box.classList.add("good");comparison=" · Bonne affaire ✓";}
+      else if(purchase>market){box.classList.add("high");comparison=" · Au-dessus du marché";}
+      else comparison=" · Au prix du marché";
     }
-
-    box.innerHTML =
-      '<strong>Prix moyen : ' + market.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2}) +
-      ' €</strong>' + comparison +
-      '<div class="source">Marché japonais · données vérifiées</div>';
+    box.innerHTML='<strong>Prix marché : '+market.toLocaleString("fr-FR")+' ¥</strong>'+
+      comparison+
+      '<div class="source">Cardmarket / ventes eBay · brut · repère marché</div>';
   });
 }
 
-renderMarketPrices();
 </script>
 
 <div style="max-width:1100px;margin:18px auto;padding:12px 14px;color:#667085;font-size:11px;line-height:1.4">
-  <strong>Prix de marché japonais :</strong> les valeurs affichées sont des repères de marché
-  pour des cartes japonaises brutes, principalement Near Mint. « — » signifie que je n'ai pas
-  encore trouvé une donnée suffisamment fiable pour cette carte. Les prix peuvent évoluer.
+<strong>Prix marché en ¥ :</strong> valeurs basées uniquement sur des ventes vérifiables
+(Cardmarket et/ou ventes eBay). Les cartes sans volume ou correspondance japonaise suffisamment
+fiable affichent « — ». Les prix sont arrondis à 100 ¥.
 </div>
-
 </body></html>
